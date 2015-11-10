@@ -9,9 +9,10 @@ public class Sqlwork {
     static final String DATABASE_NAME = "musicshop";
 
     static final String USER = "root";
-    static final String PASS = "Uknmfs8ew";
+    static final String PASS = "admin";
     Connection connection = null;
     Statement statement = null;
+
     void createDatabase()  {
 
         try {
@@ -45,7 +46,7 @@ public class Sqlwork {
             e.printStackTrace();
         }
     }
-   private void createTable(String name,String... fields) throws SQLException {
+    private void createTable(String name,String... fields) throws SQLException {
         String sqlCreateQuery = "CREATE TABLE IF NOT EXISTS " + name + "(";
         for (int i = 0; i < fields.length-1; i++) {
             sqlCreateQuery+=fields[i]+",";
@@ -54,7 +55,7 @@ public class Sqlwork {
        System.out.println(sqlCreateQuery);
         statement.executeUpdate(sqlCreateQuery);
     }
-    void createTables()  {
+    void createTables(){
         try {
             createTable("Musicians",
                     "id integer not null",
@@ -65,5 +66,21 @@ public class Sqlwork {
 
 
     }
+    void deleteDatabase(){
+        try {
+            Class.forName(JDBC_DRIVER);
+            connection = DriverManager.getConnection(DB_URL, USER, PASS);
+            statement=connection.createStatement();
+            String sqlQuery="DROP DATABASE IF EXISTS "+DATABASE_NAME;
+            statement.executeUpdate(sqlQuery);
 
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
