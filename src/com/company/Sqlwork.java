@@ -1,5 +1,7 @@
 package com.company;
 import java.sql.*;
+import java.util.IllegalFormatCodePointException;
+
 /**
  * Created by alexander on 28.10.15.
  */
@@ -8,8 +10,8 @@ public class Sqlwork {
     static final String DB_URL = "jdbc:mysql://localhost/";
     static final String DATABASE_NAME = "musicshop";
 
-    static final String USER = "root";
-    static final String PASS = "admin";
+     String USER = "root";
+    String PASS = "admin";
     Connection connection = null;
     Statement statement = null;
 
@@ -50,11 +52,13 @@ public class Sqlwork {
         String sqlCreateQuery = "CREATE TABLE IF NOT EXISTS " + name + "(";
         for (int i = 0; i < fields.length-1; i++) {
             sqlCreateQuery+=fields[i]+",";
+
         }
         sqlCreateQuery+=fields[fields.length-1] + ")";
-       System.out.println(sqlCreateQuery);
         statement.executeUpdate(sqlCreateQuery);
     }
+
+
     void createTables(){
         try {
             createTable("Musicians",
@@ -82,5 +86,9 @@ public class Sqlwork {
             e.printStackTrace();
         }
 
+    }
+    Sqlwork(String username,String password){
+        this.USER=username;
+        this.PASS=password;
     }
 }
