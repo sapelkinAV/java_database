@@ -26,10 +26,9 @@ public class LoginMenuFrame extends JFrame {
     JTextField userField = new JTextField();
     JPasswordField passwordField = new JPasswordField();
 
-    public LoginMenuFrame(Connection connection,Statement statement) {
+    public LoginMenuFrame() {
         super("Login Frame");
-        this.connection = connection;
-        this.statement = statement;
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(400,150);
 
@@ -82,9 +81,14 @@ public class LoginMenuFrame extends JFrame {
         @Override
         public void run() {
             try {
+
                 Class.forName(Sqlwork.JDBC_DRIVER);
-                connection = DriverManager.getConnection(Sqlwork.DB_URL, userField.toString(), passwordField.toString());
+
+                connection = DriverManager.getConnection(Sqlwork.DB_URL, userField.getText().toString(), String.valueOf(passwordField.getPassword()));
                 statement=connection.createStatement();
+                myJframe.setVisible(false);
+                (new ClientMenuFrame(connection,statement)).setVisible(true);
+                myJframe.dispose();
 
 
             } catch (ClassNotFoundException e) {
@@ -93,7 +97,6 @@ public class LoginMenuFrame extends JFrame {
                 warningLabel.setText("bad connection");
             }
 
-            myJframe.setVisible(false);
         }
     }
     class RegisterButton extends JButton implements Runnable{
@@ -108,7 +111,7 @@ public class LoginMenuFrame extends JFrame {
         @Override
         public void run() {
                 myFrame.setVisible(false);
-                (new RegistrationMenuFrame(connection, statement)).setVisible(true);
+                (new RegistrationMenuFrame()).setVisible(true);
             myFrame.dispose();
 
 

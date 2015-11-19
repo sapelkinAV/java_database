@@ -17,6 +17,7 @@ public class ClientMenuFrame extends JFrame{
         this.connection=connection;
         this.statement = statement;
         this.setSize(600, 800);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
     private void prepareFrame() {
 
