@@ -1,10 +1,5 @@
 package com.company;//STEP 1. Import required packages
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.sql.*;
-import java.util.*;
-
 public class FirstExample {
 
     // JDBC driver name and database URL
@@ -20,6 +15,7 @@ public class FirstExample {
             System.exit(1);
         }
         Sqlwork sqlw = new Sqlwork(args[0],args[1]);
+        sqlw.deleteDatabase();
         sqlw.createDatabase();
     }//end main
 }//end FirstExample
