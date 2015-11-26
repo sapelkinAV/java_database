@@ -57,7 +57,7 @@ public class Sqlwork {
             sqlCreateQuery+=fields[i]+",";
 
         }
-        sqlCreateQuery+=fields[fields.length-1] + ")";
+        sqlCreateQuery+=fields[fields.length-1] + ")ENGINE=MyISAM;";
         statement.executeUpdate(sqlCreateQuery);
     }
 
@@ -69,8 +69,8 @@ public class Sqlwork {
             createTable("Artists",
                     id_template,
                     nameTemplate,
-                    "genre varchar(40)",
-                    "balance  float"
+                    "Genre varchar(40)",
+                    "Balance  float"
                     );
             createTable("Albums",
                     id_template,
@@ -94,6 +94,7 @@ public class Sqlwork {
             createTable("Clients",
                     id_template,
                     nameTemplate,
+                    "Sex Varchar(2)",
                     "balance float");
             createTable("ClientStash",
                     id_template,

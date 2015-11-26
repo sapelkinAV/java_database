@@ -12,10 +12,9 @@ public class ClientMenuFrame extends JFrame{
     Connection connection;
     Statement statement;
 
-    public ClientMenuFrame(Connection connection, Statement statement) {
+    public ClientMenuFrame(Connection connection) {
         super("Client Frame");
         this.connection=connection;
-        this.statement = statement;
         this.setSize(600, 800);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }

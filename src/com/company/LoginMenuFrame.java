@@ -19,8 +19,8 @@ public class LoginMenuFrame extends JFrame {
     Connection connection;
     Statement statement;
 
-    LoginButton loginButton = new LoginButton(this);
-    RegisterButton regButton = new RegisterButton(this);
+    JButton loginButton = new JButton("Sign In");
+    JButton regButton = new JButton("Sign Up");
 
     JLabel warningLabel = new JLabel("Start your glorious database session here!");
     JTextField userField = new JTextField();
@@ -30,7 +30,7 @@ public class LoginMenuFrame extends JFrame {
         super("Login Frame");
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(400,150);
+        this.setSize(400, 150);
 
         prepareLoginFrame();
 
@@ -46,8 +46,8 @@ public class LoginMenuFrame extends JFrame {
         this.add(authorisationLoginFramePanel, BorderLayout.CENTER);
         this.add(warningLabel, BorderLayout.NORTH);
 
-        loginButton.addActionListener(new ButtonClickListener());
-        regButton.addActionListener(new ButtonClickListener());
+        loginButton.addActionListener(new ButtonClickListener(this));
+        regButton.addActionListener(new ButtonClickListener(this));
         buttonsFlowPanel.add(loginButton);
         buttonsFlowPanel.add(regButton);
         this.add(buttonsFlowPanel, BorderLayout.SOUTH);
@@ -59,63 +59,42 @@ public class LoginMenuFrame extends JFrame {
 
     }
     private class ButtonClickListener implements ActionListener {
+        JFrame myFrame;
+        public ButtonClickListener(JFrame myFrame) {
+            this.myFrame = myFrame;
+        }
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
             if( command.equals( "Sign In" ))  {
-                loginButton.run();
+
+
+                try {
+                    Class.forName(Sqlwork.JDBC_DRIVER);
+                    connection = DriverManager.getConnection(Sqlwork.DB_URL, userField.getText().toString(), String.valueOf(passwordField.getPassword()));
+                    statement=connection.createStatement();
+                    myFrame.setVisible(false);
+                    (new ClientMenuFrame(connection)).setVisible(true);
+                    myFrame.dispose();
+
+                } catch (ClassNotFoundException e1) {
+                    warningLabel.setText("Bad try");
+                } catch (SQLException e1) {
+                    warningLabel.setText("Bad try");
+                }
+
+
             }
             else if( command.equals( "Sign Up" ) )  {
-                regButton.run();
+                myFrame.setVisible(false);
+                (new RegistrationMenuFrame()).setVisible(true);
+                myFrame.dispose();
+
             }
             else  {
 
             }
         }
     }
-    class LoginButton extends JButton implements Runnable{
-        JFrame myJframe;
-        public LoginButton(JFrame myJframe) {
-            super("Sign In");
-            this.myJframe=myJframe;
-        }
-        @Override
-        public void run() {
-            try {
-
-                Class.forName(Sqlwork.JDBC_DRIVER);
-
-                connection = DriverManager.getConnection(Sqlwork.DB_URL, userField.getText().toString(), String.valueOf(passwordField.getPassword()));
-                statement=connection.createStatement();
-                myJframe.setVisible(false);
-                (new ClientMenuFrame(connection,statement)).setVisible(true);
-                myJframe.dispose();
 
 
-            } catch (ClassNotFoundException e) {
-                warningLabel.setText("bad connection");
-            } catch (SQLException e) {
-                warningLabel.setText("bad connection");
-            }
-
-        }
-    }
-    class RegisterButton extends JButton implements Runnable{
-
-        JFrame myFrame;
-
-        public RegisterButton(JFrame myFrame) {
-            super("Sign Up");
-            this.myFrame = myFrame;
-        }
-
-        @Override
-        public void run() {
-                myFrame.setVisible(false);
-                (new RegistrationMenuFrame()).setVisible(true);
-            myFrame.dispose();
-
-
-
-        }
-    }
 }

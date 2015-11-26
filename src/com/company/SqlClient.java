@@ -15,7 +15,7 @@ public class SqlClient {
     JFrame clientMenuFrame;
     JFrame registrationFrame;
     SqlClient() {
-        new LoginMenuFrame();
+        new LoginMenuFrame()                    ;
 
     }
 
