@@ -76,19 +76,23 @@ public class LoginMenuFrame extends JFrame {
                     String loginName = userField.getText().toString();
                     String password = String.valueOf(passwordField.getPassword());
 
-                    connection = DriverManager.getConnection(DB_URL+DATABASE_NAME, userField.getText().toString(), String.valueOf(passwordField.getPassword()));
+                    connection = DriverManager.getConnection(DB_URL+DATABASE_NAME, loginName, password);
                     statement=connection.createStatement();
                     ResultSet queryResult = statement.executeQuery(clientExistanceQuery);
-                    if (queryResult.getInt("logintest") > 0) {
-                        (new ClientMenuFrame(loginName,password)).setVisible(true);
-                    }else{
-                        queryResult = statement.executeQuery(artistExistanceQuery);
+                    if(queryResult.next()) {
                         if (queryResult.getInt("logintest") > 0) {
-                            (new ArtistMenuFrame(loginName, password) ).setVisible(true);
-                        }
-                    }
-                    closeFrame();
 
+                            (new ClientMenuFrame(loginName, password)).setVisible(true);
+                        } else {
+                            queryResult = statement.executeQuery(artistExistanceQuery);
+                            if(queryResult.next()) {
+                                if (queryResult.getInt("logintest") > 0) {
+                                    (new ArtistMenuFrame(loginName, password)).setVisible(true);
+                                }
+                            }
+                        }
+                        closeFrame();
+                    }
 
 
 

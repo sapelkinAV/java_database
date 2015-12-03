@@ -12,7 +12,7 @@ public class ArtistMenuFrame extends JFrame{
     String password;
 
     public ArtistMenuFrame(String login, String password) {
-        super("Client Frame");
+        super("Artist Frame");
         this.login = login;
         this.password = password;
         this.setSize(600, 800);

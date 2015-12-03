@@ -70,57 +70,7 @@ public class RegistrationMenuFrame extends JFrame {
 
         JButton registrate = new JButton("Confirm registration");
         JButton backToLoginMenu = new JButton("Back");
-        registrate.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (actionEvent.getActionCommand().equals("Confirm registration")) {
-                    try {
-                        statement = connection.createStatement();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                    String createUserTemplate = "Create user";
-                    String identifiedByTemplate = "Identified by";
-                    String login = loginTextField.getText().toString();
-                    String password = String.valueOf(passwordField.getPassword());
-                    String privileguesTemplate = "GRANT ALL PRIVILEGES ON musicshop.* TO ";
-
-                    String name = nameTextField.getText().toString();
-                    if (clientRadioButton.isSelected()) {
-                        String sex;
-                        if (clientSexMaleRadioButton.isSelected()) {
-                            sex = "M";
-                        } else {
-                            sex = "F";
-                        }
-                        try {
-                            statement.executeUpdate(createUserTemplate+" '" + login+"'@'localhost'" + identifiedByTemplate +" '"+ password+"';");
-                            statement.executeUpdate(privileguesTemplate + " '" + login + "'@'localhost' ");
-
-                            String insertQuery = "INSERT INTO Clients(Name,Login, Sex, Balance) VALUES('" + name + "', '"+login+"', " + "'" + sex + "', " + "1000.0)";
-                            System.out.println(insertQuery);
-                            statement.executeUpdate(insertQuery);
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    }else if (artistRadioButton.isSelected()) {
-                        String genre = artistGenreTextField.getText().toString();
-                        try {
-
-                            String sqlquery="INSERT INTO Artists(Name,Login, Genre, Balance) VALUES('" + name + "', '" +login+"', "+ "'" + genre + "', " + "100.0)";
-                            statement.executeUpdate(privileguesTemplate + " '" + login + "'@'localhost' ");
-                            System.out.println(sqlquery);
-                            statement.executeUpdate(sqlquery);
-                            statement.executeUpdate(sqlquery);
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                }
-            }
-        });
+        registrate.addActionListener(new registrationLitener());
         backToLoginMenu.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -222,6 +172,57 @@ public class RegistrationMenuFrame extends JFrame {
         artistSpecificCommercials.add(artistGenreTextField);
 
 
+    }
+    class registrationLitener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            if (actionEvent.getActionCommand().equals("Confirm registration")) {
+                try {
+                    statement = connection.createStatement();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                String createUserTemplate = "Create user";
+                String identifiedByTemplate = "Identified by";
+                String login = loginTextField.getText().toString();
+                String password = String.valueOf(passwordField.getPassword());
+                String privileguesTemplate = "GRANT SELECT, INSERT, DELETE , UPDATE ON musicshop.* TO ";
+
+                String name = nameTextField.getText().toString();
+                if (clientRadioButton.isSelected()) {
+                    String sex;
+                    if (clientSexMaleRadioButton.isSelected()) {
+                        sex = "M";
+                    } else {
+                        sex = "F";
+                    }
+                    try {
+                        statement.executeUpdate(createUserTemplate+" '" + login+"'@'localhost'" + identifiedByTemplate +" '"+ password+"';");
+                        statement.executeUpdate(privileguesTemplate + " '" + login + "'@'localhost' ");
+                        String insertQuery = "INSERT INTO Clients(Name,Login, Sex, Balance) VALUES('" + name + "', '"+login+"', " + "'" + sex + "', " + "1000.0)";
+                        System.out.println(insertQuery);
+                        statement.executeUpdate(insertQuery);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }else if (artistRadioButton.isSelected()) {
+                    String genre = artistGenreTextField.getText().toString();
+                    try {
+                        statement.executeUpdate(createUserTemplate+" '" + login+"'@'localhost'" + identifiedByTemplate +" '"+ password+"';");
+                        String sqlquery="INSERT INTO Artists(Name,Login, Genre, Balance) VALUES('" + name + "', '" +login+"', "+ "'" + genre + "', " + "100.0)";
+                        statement.executeUpdate(sqlquery);
+                        System.out.println(sqlquery);
+                        sqlquery = privileguesTemplate + " '" + login + "'@'localhost' ";
+                        statement.executeUpdate(sqlquery);
+                        System.out.println(sqlquery);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+        }
     }
 
 
