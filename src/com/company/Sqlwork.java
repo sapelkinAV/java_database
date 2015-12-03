@@ -57,13 +57,13 @@ public class Sqlwork {
             sqlCreateQuery+=fields[i]+",";
 
         }
-        sqlCreateQuery+=fields[fields.length-1] + ")ENGINE=MyISAM;";
+        sqlCreateQuery+=fields[fields.length-1] + ")ENGINE=InnoDB";
         statement.executeUpdate(sqlCreateQuery);
     }
 
 
     void createTables(){
-        String loginTemplate = "Login Varchar(40)";
+        String loginTemplate = "Login Varchar(40) UNIQUE";
         String id_template="id int not null primary key auto_increment";
         String nameTemplate ="Name varchar(100) ";
         try {
@@ -83,16 +83,18 @@ public class Sqlwork {
             createTable("Tracks",
                     id_template,
                     nameTemplate,
-                    "Duration TIME",
+                    "Duration int",
                     "Album int not null",
                     "foreign key(Album) references Albums(id)"
                     );
             createTable("Clips",
                     id_template,
-                    loginTemplate,
-                    "Duration time",
+                    nameTemplate,
+                    "Duration int",
                     "Album int not null",
-                    "foreign key(Album) references Albums(id)");
+                    "foreign key(Album) references Albums(id)"
+                    );
+
             createTable("Clients",
                     id_template,
                     loginTemplate,

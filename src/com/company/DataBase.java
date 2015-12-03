@@ -1,5 +1,11 @@
 package com.company;
 
+import java.security.CodeSigner;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 public class DataBase {
 
 
@@ -18,8 +24,11 @@ public class DataBase {
         rootLogin=args[0];
         rootPassword=args[1];
         Sqlwork sqlw = new Sqlwork(args[0],args[1]);
-       // sqlw.deleteDatabase();
-        //sqlw.createDatabase();
-        SqlClient sqlc = new SqlClient();
+//        sqlw.deleteDatabase();
+//        sqlw.createDatabase();
+        new SqlClient();
+
+
     }
-}
+
+    }
