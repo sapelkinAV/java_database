@@ -63,12 +63,14 @@ public class Sqlwork {
 
 
     void createTables(){
+        String loginTemplate = "Login Varchar(40)";
         String id_template="id int not null primary key auto_increment";
-        String nameTemplate ="Name varchar(100)";
+        String nameTemplate ="Name varchar(100) ";
         try {
             createTable("Artists",
                     id_template,
                     nameTemplate,
+                    loginTemplate,
                     "Genre varchar(40)",
                     "Balance  float"
                     );
@@ -87,12 +89,13 @@ public class Sqlwork {
                     );
             createTable("Clips",
                     id_template,
-                    nameTemplate,
+                    loginTemplate,
                     "Duration time",
                     "Album int not null",
                     "foreign key(Album) references Albums(id)");
             createTable("Clients",
                     id_template,
+                    loginTemplate,
                     nameTemplate,
                     "Sex Varchar(2)",
                     "balance float");

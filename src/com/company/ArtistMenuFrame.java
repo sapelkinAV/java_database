@@ -1,19 +1,17 @@
 package com.company;
 
 import javax.swing.*;
-import java.sql.Connection;
-import java.sql.Statement;
 
 /**
  * Created by alexander on 19.11.15.
  */
-public class ClientMenuFrame extends JFrame{
+public class ArtistMenuFrame extends JFrame{
 
 
     String login;
     String password;
 
-    public ClientMenuFrame(String login,String password) {
+    public ArtistMenuFrame(String login, String password) {
         super("Client Frame");
         this.login = login;
         this.password = password;

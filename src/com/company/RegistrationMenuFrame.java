@@ -19,7 +19,7 @@ public class RegistrationMenuFrame extends JFrame {
     static final String DB_URL = "jdbc:mysql://localhost/";
     static final String DATABASE_NAME = "musicshop";
     static final String rootName = "root";
-    static final String rootPassword="Uknmfs8ew";
+    static final String rootPassword="admin";
     JPanel clientSpecificCommercials;
     JPanel artistSpecificCommercials;
     CardLayout cardLayout = new CardLayout();
@@ -83,6 +83,7 @@ public class RegistrationMenuFrame extends JFrame {
                     String identifiedByTemplate = "Identified by";
                     String login = loginTextField.getText().toString();
                     String password = String.valueOf(passwordField.getPassword());
+                    String privileguesTemplate = "GRANT ALL PRIVILEGES ON musicshop.* TO ";
 
                     String name = nameTextField.getText().toString();
                     if (clientRadioButton.isSelected()) {
@@ -93,8 +94,10 @@ public class RegistrationMenuFrame extends JFrame {
                             sex = "F";
                         }
                         try {
-                            statement.executeUpdate(createUserTemplate+" '" + login+"'@'localhost' " + identifiedByTemplate +" '"+ password+"';");
-                            String insertQuery = "INSERT INTO Clients(Name, Sex, Balance) VALUES('" + name + "', " + "'" + sex + "', " + "1000.0)";
+                            statement.executeUpdate(createUserTemplate+" '" + login+"'@'localhost'" + identifiedByTemplate +" '"+ password+"';");
+                            statement.executeUpdate(privileguesTemplate + " '" + login + "'@'localhost' ");
+
+                            String insertQuery = "INSERT INTO Clients(Name,Login, Sex, Balance) VALUES('" + name + "', '"+login+"', " + "'" + sex + "', " + "1000.0)";
                             System.out.println(insertQuery);
                             statement.executeUpdate(insertQuery);
                         } catch (SQLException e) {
@@ -104,7 +107,8 @@ public class RegistrationMenuFrame extends JFrame {
                         String genre = artistGenreTextField.getText().toString();
                         try {
 
-                            String sqlquery="INSERT INTO Artists(Name, Genre, Balance) VALUES('" + name + "', " + "'" + genre + "', " + "100.0)";
+                            String sqlquery="INSERT INTO Artists(Name,Login, Genre, Balance) VALUES('" + name + "', '" +login+"', "+ "'" + genre + "', " + "100.0)";
+                            statement.executeUpdate(privileguesTemplate + " '" + login + "'@'localhost' ");
                             System.out.println(sqlquery);
                             statement.executeUpdate(sqlquery);
                             statement.executeUpdate(sqlquery);

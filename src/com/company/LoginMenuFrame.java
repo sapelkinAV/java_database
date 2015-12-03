@@ -4,16 +4,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+
 /**
  * Created by alexander on 19.11.15.
  */
 public class LoginMenuFrame extends JFrame {
 
-
+    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    static final String DB_URL = "jdbc:mysql://localhost/";
+    static final String DATABASE_NAME = "musicshop";
 
 
     Connection connection;
@@ -69,17 +69,42 @@ public class LoginMenuFrame extends JFrame {
 
 
                 try {
+                    final String clientExistanceQuery = "select count(*) as logintest from Clients where login='"+userField.getText().toString()+"'";
+                    final String artistExistanceQuery = "select count(*) as logintest from Artists where login='"+userField.getText().toString()+"'";
+
                     Class.forName(Sqlwork.JDBC_DRIVER);
-                    connection = DriverManager.getConnection(Sqlwork.DB_URL, userField.getText().toString(), String.valueOf(passwordField.getPassword()));
+                    String loginName = userField.getText().toString();
+                    String password = String.valueOf(passwordField.getPassword());
+
+                    connection = DriverManager.getConnection(DB_URL+DATABASE_NAME, userField.getText().toString(), String.valueOf(passwordField.getPassword()));
                     statement=connection.createStatement();
-                    myFrame.setVisible(false);
-                    (new ClientMenuFrame(connection)).setVisible(true);
-                    myFrame.dispose();
+                    ResultSet queryResult = statement.executeQuery(clientExistanceQuery);
+                    if (queryResult.getInt("logintest") > 0) {
+                        (new ClientMenuFrame(loginName,password)).setVisible(true);
+                    }else{
+                        queryResult = statement.executeQuery(artistExistanceQuery);
+                        if (queryResult.getInt("logintest") > 0) {
+                            (new ArtistMenuFrame(loginName, password) ).setVisible(true);
+                        }
+                    }
+                    closeFrame();
+
+
+
+
 
                 } catch (ClassNotFoundException e1) {
                     warningLabel.setText("Bad try");
                 } catch (SQLException e1) {
                     warningLabel.setText("Bad try");
+                    e1.printStackTrace();
+                }
+                finally {
+                    try {
+                        connection.close();
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
                 }
 
 
@@ -87,14 +112,17 @@ public class LoginMenuFrame extends JFrame {
             else if( command.equals( "Sign Up" ) )  {
                 myFrame.setVisible(false);
                 (new RegistrationMenuFrame()).setVisible(true);
-                myFrame.dispose();
-
+                closeFrame();
             }
-            else  {
 
-            }
         }
     }
 
+    private void closeFrame() {
+        this.setVisible(false);
+
+        this.dispose();
+
+    }
 
 }
