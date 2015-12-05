@@ -24,9 +24,9 @@ public class DataBase {
         rootLogin=args[0];
         rootPassword=args[1];
         Sqlwork sqlw = new Sqlwork(args[0],args[1]);
-//        sqlw.deleteDatabase();
-//        sqlw.createDatabase();
-        new SqlClient();
+  //      sqlw.deleteDatabase();
+   //     sqlw.createDatabase();
+         new SqlClient();
 
 
     }
