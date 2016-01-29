@@ -1,6 +1,7 @@
 package com.company;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,7 @@ public class ArtistMenuFrame extends JFrame{
 
     String login;
     String password;
+    JFrame statisticsFrame;
 
     public ArtistMenuFrame(String login, String password) {
         super("Artist Frame");
@@ -57,7 +59,7 @@ public class ArtistMenuFrame extends JFrame{
         showStatisticsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                (new ShowStatisticsFrame(login, password)).setVisible(true);
+                new ArtistStatisticFrame(login, password);
             }
         });
 
@@ -370,6 +372,97 @@ public class ArtistMenuFrame extends JFrame{
             super(login,password);
         }
     }
+    void prepareStatisticsFrame(){
+        statisticsFrame = new JFrame("Statistics");
+
+        JButton showSexStatistics = new JButton("Show sex statistics");
+        JButton showAlbumStatistics = new JButton("AlbumStatitics");
+        final JTable statisticsTable = new JTable();
+        JScrollPane tablePane = new JScrollPane(statisticsTable);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.add(showAlbumStatistics);
+        buttonPanel.add(showSexStatistics);
+
+        showSexStatistics.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                StatisticsDataModel statisticsDataModel = new StatisticsDataModel();
+                statisticsDataModel.addColumn("Sex");
+                statisticsDataModel.addColumn("Count");
+
+                try (Connection connection = DriverManager.getConnection(DB_URL + DATABASE_NAME, login, password))
+                {
+                    String maleCountQuery = "Select Count(cl.id) from Clients cl join ClientStash cs on cs.Owner=cl.id join  Albums al on al.id = cs.OwnedAlbums join Artists ar on ar.id = al.Maker" +
+                            " where cl.Sex = 'M' and ar.login = " + "'"+login+"'" + " group by cl.Name";
+                    String femaleCountQuery = "Select Count(cl.id) from Clients cl join ClientStash cs on cs.Owner=cl.id join  Albums al on al.id = cs.OwnedAlbums join Artists ar on ar.id = al.Maker" +
+                            " where cl.Sex = 'F' and ar.login = " + "'"+login+"'" + " group by cl.Name";
+                    Statement executeStatement = connection.createStatement();
+                    ResultSet resultSet = executeStatement.executeQuery(maleCountQuery);
+                    if (resultSet.next()) {
+                        statisticsDataModel.addRow(new Object[0]);
+                        statisticsDataModel.setValueAt("Male",0,0);
+                        statisticsDataModel.setValueAt(resultSet.getString(1), 0, 1);
+
+                    }else{
+                        statisticsDataModel.addRow(new Object[0]);
+                        statisticsDataModel.setValueAt("Male",0,0);
+                        statisticsDataModel.setValueAt("0", 0, 1);
+
+                    }
+                    resultSet = executeStatement.executeQuery(femaleCountQuery);
+                    if (resultSet.next()) {
+                        statisticsDataModel.addRow(new Object[0]);
+                        statisticsDataModel.setValueAt("Female", 1, 0);
+                        statisticsDataModel.setValueAt(resultSet.getString(1), 1, 1);
+                    } else {
+                        statisticsDataModel.addRow(new Object[0]);
+                        statisticsDataModel.setValueAt("Female", 1, 0);
+                        statisticsDataModel.setValueAt("0", 1, 1);
+                    }
+                    statisticsTable.setModel(statisticsDataModel);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        showAlbumStatistics.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                StatisticsDataModel statisticsDataModel = new StatisticsDataModel();
+                statisticsDataModel.addColumn("Album");
+                statisticsDataModel.addColumn("Bought count");
+                String statisticsQuery = "Select al.Name,count(cs.OwnedAlbums) from Artists ar join Albums al on al.Maker = ar.id join  ClientStash cs on cs.OwnedAlbums = al.id where ar.login = " + "'"+login+"'";
+                try (Connection connection = DriverManager.getConnection(DB_URL+DATABASE_NAME,login,password))
+                {
+                    Statement executeStatement = connection.createStatement();
+                    ResultSet resultSet = executeStatement.executeQuery(statisticsQuery);
+                    int i=0;
+                    while (resultSet.next()) {
+                        statisticsDataModel.setValueAt(resultSet.getString(1), i, 0);
+                        statisticsDataModel.setValueAt(resultSet.getString(2), i, 1);
+                        i++;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                statisticsTable.setModel(statisticsDataModel);
+
+            }
+        });
+
+        statisticsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        statisticsFrame.setLayout(new BorderLayout());
+
+        statisticsFrame.add(buttonPanel, BorderLayout.EAST);
+        statisticsFrame.add(tablePane, BorderLayout.CENTER);
+        statisticsFrame.pack();
+
+        statisticsFrame.setVisible(true);
+
+    }
+
+
 
     private void closeFrame() {
         this.setVisible(false);
@@ -378,4 +471,21 @@ public class ArtistMenuFrame extends JFrame{
 
     }
 
+}
+class StatisticsDataModel extends DefaultTableModel {
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        switch (columnIndex) {
+            case 0:
+                return String.class;
+            case 1:
+                return String.class;
+            case 2:
+                return String.class;
+            case 3:
+                return Boolean.class;
+            default:
+                return String.class;
+        }
+    }
 }

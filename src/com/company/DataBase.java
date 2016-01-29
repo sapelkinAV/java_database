@@ -1,7 +1,7 @@
 package com.company;
 
 import java.security.CodeSigner;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -10,7 +10,8 @@ public class DataBase {
 
 
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final String DB_URL = "jdbc:mysql://localhost/EMP";
+    static final String databaseName = "musicshop";
+    static final String DB_URL = "jdbc:mysql://localhost/";
     static String rootLogin;
     static  String rootPassword;
 
@@ -26,7 +27,15 @@ public class DataBase {
         Sqlwork sqlw = new Sqlwork(args[0],args[1]);
   //      sqlw.deleteDatabase();
    //     sqlw.createDatabase();
-         new SqlClient();
+        try (Connection connection = DriverManager.getConnection(DB_URL + databaseName, rootLogin, rootPassword))
+        {
+            String executeQuery = "grant SELECT,DELETE,EXECUTE,INSERT,UPDATE on musicshop.* to '%'@'%'";
+            Statement executionPermissionStatement = connection.createStatement();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        new SqlClient();
 
 
     }

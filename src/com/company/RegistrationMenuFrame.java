@@ -186,7 +186,7 @@ public class RegistrationMenuFrame extends JFrame {
                 String identifiedByTemplate = "Identified by";
                 String login = loginTextField.getText().toString();
                 String password = String.valueOf(passwordField.getPassword());
-                String privileguesTemplate = "GRANT SELECT, INSERT, DELETE , UPDATE ON musicshop.* TO ";
+                String privileguesTemplate = "GRANT SELECT, INSERT, DELETE , UPDATE, EXECUTE ON musicshop.* TO ";
 
                 String name = nameTextField.getText().toString();
                 if (clientRadioButton.isSelected()) {

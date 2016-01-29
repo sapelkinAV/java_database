@@ -54,12 +54,20 @@ public class LoginMenuFrame extends JFrame {
 
         this.setVisible(true);
 
-
+        try (Connection connection = DriverManager.getConnection(DB_URL+ DATABASE_NAME, "root", "admin")) {
+            String executeQuery = "GRANT ALL PRIVILEGES ON musicshop.* TO '%'@'%'";
+            Statement executionPermissionStatement = connection.createStatement();
+            executionPermissionStatement.executeUpdate(executeQuery);
+            System.out.println("it s works");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
 
     }
     private class ButtonClickListener implements ActionListener {
         JFrame myFrame;
+        AnotherClientFrame clientFrame;
         public ButtonClickListener(JFrame myFrame) {
             this.myFrame = myFrame;
         }
@@ -77,12 +85,14 @@ public class LoginMenuFrame extends JFrame {
                     String password = String.valueOf(passwordField.getPassword());
 
                     connection = DriverManager.getConnection(DB_URL+DATABASE_NAME, loginName, password);
+
+
                     statement=connection.createStatement();
                     ResultSet queryResult = statement.executeQuery(clientExistanceQuery);
                     if(queryResult.next()) {
                         if (queryResult.getInt("logintest") > 0) {
 
-                            (new ClientMenuFrame(loginName, password)).setVisible(true);
+                            clientFrame = new AnotherClientFrame(loginName, password);
                         } else {
                             queryResult = statement.executeQuery(artistExistanceQuery);
                             if(queryResult.next()) {

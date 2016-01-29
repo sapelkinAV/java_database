@@ -5,8 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Created by alexander on 19.11.15.
@@ -16,9 +15,11 @@ public class ClientMenuFrame extends JFrame{
     static final String DB_URL = "jdbc:mysql://localhost/";
     static final String DATABASE_NAME = "musicshop";
 
+    BuyAlbumFrame bFrame;
 
     String login;
     String password;
+
 
     public ClientMenuFrame(String login,String password) {
         super("Client Frame");
@@ -33,7 +34,7 @@ public class ClientMenuFrame extends JFrame{
         buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                (new buyAlbumFrame("Buy Frame",login,password)).setVisible(true);
+                (bFrame =new BuyAlbumFrame("Buy Frame",login,password)).setVisible(true);
             }
         });
         this.setLayout(new BorderLayout());
@@ -45,13 +46,16 @@ public class ClientMenuFrame extends JFrame{
         String password;
         JButton confirmButton;
         JButton backButton;
+        JButton searchButton;
+        JButton queriesButton;
         JPanel buttonControlPanel;
-        BaseClientFrameClass(String frameName,String login, String password) {
+        BaseClientFrameClass(String frameName, final String login, final String password) {
             super(frameName);
             this.login = login;
             this.password = password;
             confirmButton = new JButton("Confirm");
             backButton = new JButton("Back");
+            searchButton = new JButton("Search!");
             this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             this.setSize(800,600);
 
@@ -63,6 +67,12 @@ public class ClientMenuFrame extends JFrame{
                     closeBaseFrame();
                 }
             });
+            queriesButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    new ClientQueriesFrame(login, password);
+                }
+            });
 
 
 
@@ -71,6 +81,7 @@ public class ClientMenuFrame extends JFrame{
             buttonControlPanel.setLayout(new FlowLayout());
             buttonControlPanel.add(confirmButton);
             buttonControlPanel.add(backButton);
+            buttonControlPanel.add(queriesButton);
             this.setLayout(new BorderLayout());
             this.add(buttonControlPanel, BorderLayout.SOUTH);
         }
@@ -80,14 +91,16 @@ public class ClientMenuFrame extends JFrame{
         }
     }
 
-    class buyAlbumFrame extends BaseClientFrameClass {
-        JLabel searchLabel = new JLabel("Search for...");
-        JTextField searchTextField = new JTextField();
+    class BuyAlbumFrame extends BaseClientFrameClass {
+
         JTable searchResultTable;
         AlbumDataModel albumDataModel;
+        JButton searchShowButton = new JButton("Search");
+        JPanel centralPanel;
+        JTextField searchTextField;
 
 
-        buyAlbumFrame(String frameName,String login, String password) {
+        BuyAlbumFrame(String frameName, String login, String password) {
             super(frameName,login, password);
             prepareFrame();
         }
@@ -95,28 +108,59 @@ public class ClientMenuFrame extends JFrame{
         void prepareFrame() {
             albumDataModel = new AlbumDataModel();
             searchResultTable = new JTable();
+            JPanel searchTextFieldPanel = new JPanel(new FlowLayout());
+            searchTextFieldPanel.setPreferredSize(new Dimension(300,10));
+            JLabel searchLabel = new JLabel("Search for...");
+            searchTextField = new JTextField();
+            searchTextField.setPreferredSize(new Dimension(300,30));
+            searchTextField.setSize(300, 30);
+            searchTextFieldPanel.add(searchLabel);
+            searchTextFieldPanel.add(searchTextField);
+
             JScrollPane tableScrollPane = new JScrollPane();
             tableScrollPane.setViewportView(searchResultTable);
+
 
             albumDataModel.addColumn("Album Title");
             albumDataModel.addColumn("Artist");
             albumDataModel.addColumn("Price");
             albumDataModel.addColumn("Select");
 
+
             searchResultTable.setModel(albumDataModel);
-
-            for (int i = 0; i < 10; i++) {
-                albumDataModel.addRow(new Object[0]);
-                albumDataModel.setValueAt("Test Table row 1" + i, i, 0);
-                albumDataModel.setValueAt("Test Table row 2" + i, i, 1);
-                albumDataModel.setValueAt("Test Table row 3" + i, i, 2);
-                albumDataModel.setValueAt(false, i, 3);
+            centralPanel = new JPanel();
 
 
-            }
+
+
+
+            searchButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    searchAndFillTable();
+                }
+            });
+
+
+
+
+
+
+
             confirmButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
+
+                    try (Connection connection = DriverManager.getConnection(DB_URL + DATABASE_NAME, login, password)){
+
+
+                        PreparedStatement searchStatement = connection.prepareStatement("");
+
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
                     Boolean checked = false;
                     for (int i = 0; i < 10; i++) {
                          checked = Boolean.valueOf(searchResultTable.getValueAt(i, 3).toString());
@@ -127,15 +171,61 @@ public class ClientMenuFrame extends JFrame{
 
                 }
             });
+            JPanel buttonPanel = new JPanel(new FlowLayout());
+            buttonPanel.add(backButton);
+            buttonPanel.add(searchButton);
+            buttonPanel.add(confirmButton);
 
-            this.add(tableScrollPane,BorderLayout.CENTER);
+            JPanel searchAcivityPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+            searchAcivityPanel.add(searchTextFieldPanel);
+            searchAcivityPanel.add(tableScrollPane);
+            this.add(searchAcivityPanel, BorderLayout.CENTER);
+            this.add(buttonPanel, BorderLayout.SOUTH);
+            this.pack();
 
+
+        }
+        void searchAndFillTable(){
+            System.out.println("rows -" + albumDataModel.getRowCount());
+            for (int i = 0; i < albumDataModel.getRowCount()-1; i++) {
+                albumDataModel.removeRow(i);
+                System.out.println("remove " + i);
+            }
+
+            String searchQuery = "SELECT * FROM Albums WHERE Name LIKE ?";
+            String searchArtistQuery = "SELECT Name FROM Artists WHERE id = ?";
+            try (Connection connection = DriverManager.getConnection(DB_URL + DATABASE_NAME, login, password)) {
+                PreparedStatement searchStatement = connection.prepareStatement(searchQuery);
+                PreparedStatement searchArtistStatement = connection.prepareStatement(searchArtistQuery);
+
+                searchStatement.setString(1, "'%" + searchTextField.getText().toString() + "%'");
+                ResultSet resultSet = searchStatement.executeQuery();
+
+                int k = 0;
+                ResultSet artistResultSet;
+                while (resultSet.next()) {
+                    searchArtistStatement.setString(1, resultSet.getString("Maker"));
+                    artistResultSet = searchArtistStatement.executeQuery();
+                    albumDataModel.addRow(new Object[0]);
+                    albumDataModel.setValueAt(resultSet.getString("Name"), k, 0);
+                    albumDataModel.setValueAt(artistResultSet.getString("Name"), k, 1);
+                    albumDataModel.setValueAt(resultSet.getString("Price"), k, 2);
+                    albumDataModel.setValueAt(false, k, 3);
+                    k++;
+
+                }
+
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
 
         }
 
 
 
     }
+
     class AlbumDataModel extends DefaultTableModel{
         @Override
         public Class<?> getColumnClass(int columnIndex) {
@@ -152,7 +242,9 @@ public class ClientMenuFrame extends JFrame{
                     return String.class;
             }
         }
+
     }
+
 
 
 }
